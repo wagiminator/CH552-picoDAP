@@ -29,7 +29,7 @@ sudo service udev restart
 ### Windows
 On Windows you will need the Zadig tool (https://zadig.akeo.ie/) to install the correct driver. Click "Options" and "List All Devices" to select the USB module, then install the libusb-win32 driver.
 
-## Entering Bootloader Mode
+## Entering CH55x Bootloader Mode
 A brand new chip starts automatically in bootloader mode as soon as it is connected to the PC via USB. Once firmware has been uploaded, the bootloader must be started manually for new uploads. To do this, the board must first be disconnected from the USB port and all voltage sources. Now press the BOOT button and keep it pressed while reconnecting the board to the USB port of your PC. The chip now starts again in bootloader mode, the BOOT button can be released and new firmware can be uploaded within the next couple of seconds.
 
 ## Compiling and Uploading Firmware
@@ -39,7 +39,7 @@ Open a terminal and navigate to the folder with the makefile. Run ```make flash`
 Connect the picoDAP to the target board via the 10-pin connector or the pin header (RST / DIO / CLK / GND). Make sure the target board is powered. You can supply power via the 3V3 pin (max 150 mA) or the 5V pin (max 400 mA). Plug the SWD Programmer Stick into a USB port on your PC. Since it is recognized as a Human Interface Device (HID), no driver installation is required. The SWD Programmer Stick should work with any debugging software that supports CMSIS-DAP (e.g. [OpenOCD](http://openocd.org/)). Of course, it also works with the [SAMD DevBoards](https://github.com/wagiminator/SAMD-Development-Boards) in the Arduino IDE (Tools -> Programmer -> Generic CMSIS-DAP).
 
 # References, Links and Notes
-1. [EasyEDA Design Files]()
+1. [EasyEDA Design Files](https://oshwlab.com/wagiminator/ch552-swd-programmer)
 2. [DAPLink](https://github.com/ARMmbed/DAPLink)
 3. [CH55xduino](https://github.com/DeqingSun/ch55xduino)
 4. [Ralph Doncaster's Implementation](https://github.com/nerdralph/ch554_sdcc/tree/master/examples/CMSIS_DAP)

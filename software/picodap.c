@@ -7,7 +7,7 @@
   see DAP.h for RST, SWCLK, & SWDIO pin defines
 */
 
-// LED pin and behavior changed by Stefan Wagner 2022
+// USB descriptors and LED pin/behavior changed by Stefan Wagner 2022
 
 #include <stdint.h>
 

@@ -9,7 +9,7 @@
 __code USB_DEV_DESCR DevDesc = {
     .bLength = 18,
     .bDescriptorType = USB_DESCR_TYP_DEVICE,
-    .bcdUSBH = 0x01, .bcdUSBL = 0x10,
+    .bcdUSBH = 0x02, .bcdUSBL = 0x00,   // USB 2.0
     .bDeviceClass =  0,                 // interface will define class
     .bDeviceSubClass = 0,
     .bDeviceProtocol = 0,
@@ -88,7 +88,7 @@ __code struct {
         .bConfigurationValue = 1,
         .iConfiguration = 0,            // string index
         .bmAttributes = 0x80,
-        .MaxPower = 50                  // 2mA units
+        .MaxPower = 200                  // 2mA units = 400mA
     },
     .interface = {
         .bLength = sizeof(USB_ITF_DESCR),
@@ -173,12 +173,12 @@ __code uint16_t Prod_Des[]={
 
 __code uint16_t Manuf_Des[]={
     0x0300 + sizeof(Manuf_Des), // type and length
-    'W','C','H',' ','C','H','5','5','x'
+    'w','a','g','i','m','i','n','a','t','o','r'
 };
 
 // Serial string descriptor - CMSIS-DAP unique ID
 __code uint16_t Ser_Des[]={
     0x0300 + sizeof(Ser_Des),   // type and length
-    'S','W'
+    'C','H','5','5','x'
 };
 

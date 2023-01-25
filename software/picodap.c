@@ -1,93 +1,85 @@
-/*
-  CMSIS_DAP
-  Based on DAPLink and Deqing Sun's CH55xduino port 
-  https://github.com/ARMmbed/DAPLink
-  Ralph Doncaster 2020, 2021
+// ===================================================================================
+// Project:   picoDAP CMSIS-DAP compliant SWD Programmer based on CH551, CH552, CH554
+// Version:   v1.1
+// Year:      2022
+// Author:    Stefan Wagner
+// Github:    https://github.com/wagiminator
+// EasyEDA:   https://easyeda.com/wagiminator
+// License:   http://creativecommons.org/licenses/by-sa/3.0/
+// ===================================================================================
+//
+// Description:
+// ------------
+// The CH55x-based picoDAP is a CMSIS-DAP compliant debugging probe with SWD protocol
+// support. It can be used to program Microchip SAM and other ARM-based
+// microcontrollers. The Firmware is based on Ralph Doncaster's DAPLink-implementation
+// for CH55x microcontrollers and Deqing Sun's CH55xduino port.
+//
+// References:
+// -----------
+// - Blinkinlabs: https://github.com/Blinkinlabs/ch554_sdcc
+// - Deqing Sun: https://github.com/DeqingSun/ch55xduino
+// - Ralph Doncaster: https://github.com/nerdralph/ch554_sdcc
+// - WCH Nanjing Qinheng Microelectronics: http://wch.cn
+// - ARMmbed DAPLink: https://github.com/ARMmbed/DAPLink
+//
+// Compilation Instructions:
+// -------------------------
+// - Chip:     CH551, CH552 or CH554
+// - Clock:    16 MHz internal
+// - Adjust the firmware parameters in include/config.h if necessary.
+// - Make sure SDCC toolchain and Python3 with PyUSB is installed.
+// - Press BOOT button on the board and keep it pressed while connecting it via USB
+//   with your PC.
+// - Run 'make flash'.
+//
+// Operating Instructions:
+// -----------------------
+// Connect the picoDAP to the target board via the 10-pin connector or the pin header
+// (RST / DIO / CLK / GND). Make sure the target board is powered. You can supply
+// power via the 3V3 pin (max 150 mA) or the 5V pin (max 400 mA). Plug the picoDAP
+// into a USB port on your PC. Since it is recognized as a Human Interface Device
+// (HID), no driver installation is required. The picoDAP should work with any
+// debugging software that supports CMSIS-DAP (e.g. OpenOCD). Of course, it also
+// works with the SAMD DevBoards in the Arduino IDE 
+// (Tools -> Programmer -> Generic CMSIS-DAP).
 
-  see DAP.h for RST, SWCLK, & SWDIO pin defines
-*/
 
-// USB descriptors and LED pin/behavior changed by Stefan Wagner 2022
+// ===================================================================================
+// Libraries, Definitions and Macros
+// ===================================================================================
 
-#include <stdint.h>
+// Libraries
+#include <clock.h>                          // system clock functions
+#include <delay.h>                          // delay functions
+#include <dap.h>                            // CMSIS-DAP functions
 
-#include <ch554.h>
-#include <ch554_usb.h>
-#include <debug.h>
-
-#include "DAP.h"
-#include "USBhandler.h"
-
-void DeviceUSBInterrupt(void) __interrupt (INT_NO_USB)
-{
-        USBInterrupt();
+// Prototypes for used interrupts
+void USB_interrupt(void);
+void USB_ISR(void) __interrupt(INT_NO_USB) {
+  USB_interrupt();
 }
 
-//Bytes of received data on USB endpoint
-volatile uint8_t USBByteCountEP1 = 0;
+// Number of received bytes in endpoint
+extern volatile __xdata uint8_t HID_EP2_byteCount;
 
-// for EP1 OUT double-buffering 
-volatile uint8_t EP1_buffs_avail = 2;
-__bit EP1_buf_toggle = 0;
+// ===================================================================================
+// Main Function
+// ===================================================================================
+void main(void) {
+  // Setup
+  CLK_config();                             // configure system clock
+  DLY_ms(5);                                // wait for clock to settle
+  DAP_init();                               // init CMSIS-DAP
 
-void USBInit(){
-    USBDeviceSetup();
-
-    // single Tx buffer for DAP replies
-    DAP_TxBuf = (__xdata uint8_t*) UEP2_DMA;
-}
-
-void USB_EP2_IN(){
-    UEP2_T_LEN = 0;                     // No data to send anymore
-    UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_NAK;           //Respond NAK by default
-}
-
-void USB_EP1_OUT(){
-    if ( U_TOG_OK ){               // Discard unsynchronized packets
-        USBByteCountEP1 = USB_RX_LEN;
-        if (USBByteCountEP1){
-            //Respond NAK. Let main change response after handling.
-            UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_R_RES | UEP_R_RES_NAK;
-
-            // double-buffering of DAP request packets
-            DAP_RxBuf = (__xdata uint8_t*) UEP1_DMA;
-            EP1_buf_toggle = !EP1_buf_toggle;
-            if (EP1_buf_toggle)
-                UEP1_DMA = (uint16_t) Ep1Buffer + 64;
-            else
-                UEP1_DMA = (uint16_t) Ep1Buffer;
-
-        }
+  // Loop
+  while(1) {
+    if(HID_EP2_byteCount && !UEP1_T_LEN) {  // DAP packet received and out buffer empty?                      
+      DAP_Thread();                         // handle DAP packet
+      HID_EP2_byteCount = 0;                // clear byte counter
+      UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_R_RES | UEP_R_RES_ACK;  // enable receive
+      UEP1_T_LEN = 64;                                          // hangs if smaller
+      UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;  // enable send
     }
-}
-
-void main() {
-    CfgFsys(); 
-    disconnectUSB();
-    USBInit();
-    LED = 1;
-    while (1) {
-        uint8_t response_len;
-        // process if a DAP packet is received, and TxBuf is empty
-        // save ByteCountEP1?
-        if (USBByteCountEP1 && !UEP2_T_LEN) {
-            __xdata uint8_t* RxPkt = DAP_RxBuf;
-            if (--EP1_buffs_avail) {
-                USBByteCountEP1 = 0 ;
-                // Rx another packet while DAP_Thread runs
-                UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_R_RES | UEP_R_RES_ACK;
-            }
-
-            response_len = DAP_Thread(RxPkt);
-
-            //UEP2_T_LEN = response_len;
-            // enable interrupt IN response
-            UEP2_T_LEN = 64;            // hangs on Windoze < 64
-            UEP2_CTRL = UEP2_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;
-
-            // enable receive
-            EP1_buffs_avail++;
-            UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_R_RES | UEP_R_RES_ACK;
-        }
-    }
+  }
 }

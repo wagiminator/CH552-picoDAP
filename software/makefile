@@ -1,10 +1,8 @@
 # ===================================================================================
-# Project:  picoDAP - CMSIS-DAP compliant SWD-Programmer based on CH55x
+# Project:  picoDAP CMSIS-DAP compliant SWD Programmer based on CH551, CH552, CH554
 # Author:   Stefan Wagner
 # Year:     2022
 # URL:      https://github.com/wagiminator
-# Based on: Ralph Doncaster:  https://github.com/nerdralph/ch554_sdcc
-#           DAPLink:          https://github.com/ARMmbed/DAPLink
 # ===================================================================================         
 # Type "make help" in the command line.
 # ===================================================================================
@@ -17,7 +15,7 @@ INCLUDE    = include
 # Microcontroller Settings
 FREQ_SYS   = 16000000
 XRAM_SIZE  = 0x0300
-XRAM_LOC   = 0x1000
+XRAM_LOC   = 0x0100
 CODE_SIZE  = 0x3800
 
 # Toolchain

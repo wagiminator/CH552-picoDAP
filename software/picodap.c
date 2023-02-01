@@ -50,7 +50,7 @@
 // ===================================================================================
 
 // Libraries
-#include <clock.h>                          // system clock functions
+#include <system.h>                         // system functions
 #include <delay.h>                          // delay functions
 #include <dap.h>                            // CMSIS-DAP functions
 

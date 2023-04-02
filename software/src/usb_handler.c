@@ -50,7 +50,7 @@ void USB_EP0_SETUP(void) {
       #ifdef USB_CTRL_NS_handler
       len = USB_CTRL_NS_handler();                // non-standard request
       #else
-      len = 0xFF;                                 // command not supported
+      len = 0xff;                                 // command not supported
       #endif
     }
 
@@ -442,7 +442,7 @@ void USB_init(void) {
   UDEV_CTRL   = bUD_PD_DIS                  // Disable UDP/UDM pulldown resistor
               | bUD_PORT_EN;                // Enable port, full-speed
 
-  #if FREQ_SYS < 12000000                   // Set low-speed mode if SysFreq < 12 MHz
+  #if F_CPU < 12000000                      // Set low-speed mode if SysFreq < 12 MHz
   USB_CTRL   |= bUC_LOW_SPEED;
   UDEV_CTRL  |= bUD_LOW_SPEED;
   #endif

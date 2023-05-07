@@ -197,7 +197,7 @@
 #define SWD_SEQUENCE_CLK          0x3FU // SWCLK count
 #define SWD_SEQUENCE_DIN          0x80U // SWDIO capture
 
-#define DAP_PACKET_COUNT          2
+#define DAP_PACKET_COUNT          1
 #define DAP_PACKET_SIZE           64    // THIS ENDP SIZE
 #define DAP_DEFAULT_PORT          DAP_PORT_SWD
 

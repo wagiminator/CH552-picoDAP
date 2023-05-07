@@ -1,6 +1,6 @@
 // ===================================================================================
 // Project:   picoDAP CMSIS-DAP compliant SWD Programmer based on CH551, CH552, CH554
-// Version:   v1.2
+// Version:   v1.3
 // Year:      2022
 // Author:    Stefan Wagner
 // Github:    https://github.com/wagiminator
@@ -63,7 +63,7 @@ void USB_ISR(void) __interrupt(INT_NO_USB) {
 }
 
 // Number of received bytes in endpoint
-extern volatile __xdata uint8_t HID_EP2_byteCount;
+extern volatile __xdata uint8_t HID_byteCount;
 
 // ===================================================================================
 // Main Function
@@ -76,9 +76,9 @@ void main(void) {
 
   // Loop
   while(1) {
-    if(HID_EP2_byteCount && !UEP1_T_LEN) {  // DAP packet received and out buffer empty?                      
+    if(HID_byteCount && !UEP1_T_LEN) {      // DAP packet received and out buffer empty?                      
       DAP_Thread();                         // handle DAP packet
-      HID_EP2_byteCount = 0;                // clear byte counter
+      HID_byteCount = 0;                    // clear byte counter
       UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_R_RES | UEP_R_RES_ACK;  // enable receive
       UEP1_T_LEN = 64;                                          // hangs if smaller
       UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;  // enable send

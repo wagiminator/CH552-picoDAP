@@ -76,13 +76,13 @@ __code USB_CFG_DESCR_HID CfgDescr = {
     .bInterval          = 1                       // polling intervall in ms
   },
 
-  // Endpoint Descriptor: Endpoint 2 (OUT, Interrupt)
-  .ep2OUT = {
+  // Endpoint Descriptor: Endpoint 1 (OUT, Interrupt)
+  .ep1OUT = {
     .bLength            = sizeof(USB_ENDP_DESCR), // size of the descriptor in bytes: 7
     .bDescriptorType    = USB_DESCR_TYP_ENDP,     // endpoint descriptor: 0x05
-    .bEndpointAddress   = USB_ENDP_ADDR_EP2_OUT,  // endpoint: 2, direction: OUT (0x02)
+    .bEndpointAddress   = USB_ENDP_ADDR_EP1_OUT,  // endpoint: 1, direction: OUT (0x01)
     .bmAttributes       = USB_ENDP_TYPE_INTER,    // transfer type: interrupt (0x03)
-    .wMaxPacketSize     = EP2_SIZE,               // max packet size
+    .wMaxPacketSize     = EP1_SIZE,               // max packet size
     .bInterval          = 1                       // polling intervall in ms
   }
 };

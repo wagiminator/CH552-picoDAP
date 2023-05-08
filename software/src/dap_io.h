@@ -58,10 +58,9 @@
 #define SWD_OUT_DISABLE()     // nothing to be done (open-drain pullup)
 
 // HID transfer buffers
-#define DAP_READ_BUF_PTR      EP2_buffer
-#define DAP_WRITE_BUF_PTR     EP1_buffer
+#define DAP_READ_BUF_PTR      EP1_buffer
+#define DAP_WRITE_BUF_PTR     EP1_buffer + 64
 extern __xdata uint8_t EP1_buffer[];
-extern __xdata uint8_t EP2_buffer[];
 
 // DAP init function
 #define DAP_init()            HID_init(); PORT_SWD_SETUP();

@@ -18,7 +18,7 @@ extern uint8_t SetupReq;
 void HID_setup(void);
 void HID_reset(void);
 void HID_EP1_IN(void);
-void HID_EP2_OUT(void);
+void HID_EP1_OUT(void);
 
 // ===================================================================================
 // USB Handler Defines
@@ -32,7 +32,7 @@ void HID_EP2_OUT(void);
 #define EP0_IN_callback     USB_EP0_IN
 #define EP0_OUT_callback    USB_EP0_OUT
 #define EP1_IN_callback     HID_EP1_IN
-#define EP2_OUT_callback    HID_EP2_OUT
+#define EP1_OUT_callback    HID_EP1_OUT
 
 // ===================================================================================
 // Functions

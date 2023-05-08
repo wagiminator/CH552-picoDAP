@@ -71,7 +71,7 @@ extern volatile __xdata uint8_t HID_byteCount;
 void main(void) {
   // Setup
   CLK_config();                             // configure system clock
-  DLY_ms(5);                                // wait for clock to settle
+  DLY_ms(10);                               // wait for clock to settle
   DAP_init();                               // init CMSIS-DAP
 
   // Loop
@@ -79,9 +79,8 @@ void main(void) {
     if(HID_byteCount && !UEP1_T_LEN) {      // DAP packet received and out buffer empty?                      
       DAP_Thread();                         // handle DAP packet
       HID_byteCount = 0;                    // clear byte counter
-      UEP2_CTRL = UEP2_CTRL & ~MASK_UEP_R_RES | UEP_R_RES_ACK;  // enable receive
-      UEP1_T_LEN = 64;                                          // hangs if smaller
-      UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;  // enable send
+      UEP1_T_LEN = 64;                      // Windows hangs if smaller
+      UEP1_CTRL = UEP1_CTRL & ~(MASK_UEP_R_RES | MASK_UEP_T_RES); // send/receive package
     }
   }
 }

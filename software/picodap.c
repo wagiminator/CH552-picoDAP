@@ -1,6 +1,6 @@
 // ===================================================================================
 // Project:   picoDAP CMSIS-DAP compliant SWD Programmer based on CH551, CH552, CH554
-// Version:   v1.3
+// Version:   v1.4
 // Year:      2022
 // Author:    Stefan Wagner
 // Github:    https://github.com/wagiminator
@@ -52,9 +52,9 @@
 // ===================================================================================
 
 // Libraries
-#include "src/system.h"                     // system functions
-#include "src/delay.h"                      // delay functions
-#include "src/dap.h"                        // CMSIS-DAP functions
+#include "src/system.h"                                 // system functions
+#include "src/delay.h"                                  // delay functions
+#include "src/dap.h"                                    // CMSIS-DAP functions
 
 // Prototypes for used interrupts
 void USB_interrupt(void);
@@ -63,24 +63,26 @@ void USB_ISR(void) __interrupt(INT_NO_USB) {
 }
 
 // Number of received bytes in endpoint
-extern volatile __xdata uint8_t HID_byteCount;
+extern volatile __xdata uint8_t HID_readByteCount;      // data bytes received
+extern volatile __bit HID_writeBusyFlag;                // transmitting in progress
 
 // ===================================================================================
 // Main Function
 // ===================================================================================
 void main(void) {
   // Setup
-  CLK_config();                             // configure system clock
-  DLY_ms(10);                               // wait for clock to settle
-  DAP_init();                               // init CMSIS-DAP
+  CLK_config();                                         // configure system clock
+  DLY_ms(10);                                           // wait for clock to settle
+  DAP_init();                                           // init CMSIS-DAP
 
   // Loop
   while(1) {
-    if(HID_byteCount && !UEP1_T_LEN) {      // DAP packet received and out buffer empty?                      
-      DAP_Thread();                         // handle DAP packet
-      HID_byteCount = 0;                    // clear byte counter
-      UEP1_T_LEN = 64;                      // Windows hangs if smaller
-      UEP1_CTRL = UEP1_CTRL & ~(MASK_UEP_R_RES | MASK_UEP_T_RES); // send/receive package
+    if(HID_readByteCount && !HID_writeBusyFlag) {       // DAP packet transmitted & received?                      
+      DAP_Thread();                                     // handle DAP packet
+      HID_readByteCount = 0;                            // clear byte counter
+      HID_writeBusyFlag = 1;                            // set write busy flag
+      UEP1_T_LEN = 64;                                  // send 64 bytes
+      UEP1_CTRL &= ~(MASK_UEP_R_RES | MASK_UEP_T_RES);  // send & receive packet
     }
   }
 }

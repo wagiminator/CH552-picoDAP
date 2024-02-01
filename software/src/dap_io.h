@@ -63,5 +63,5 @@
 extern __xdata uint8_t EP1_buffer[];
 
 // DAP init function
-#define DAP_init()            HID_init(); PORT_SWD_SETUP();
-extern void HID_init(void);
+#define DAP_init()            {USB_init(); PORT_SWD_SETUP();}
+extern void USB_init(void);

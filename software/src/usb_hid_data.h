@@ -37,8 +37,8 @@ extern volatile __bit HID_writeBusyFlag;            // TX buffer is being transm
 // HID Functions
 // ===================================================================================
 #define HID_init          USB_init                  // setup USB HID data
-#define HID_available()   (CDC_readByteCount)       // ready to be read
-#define HID_ready()       (!CDC_writeBusyFlag)      // ready to be written
+#define HID_available()   (HID_readByteCount)       // ready to be read
+#define HID_ready()       (!HID_writeBusyFlag)      // ready to be written
 
 #if HID_DATA_FUNCTIONS > 0
 void HID_flush(void);                               // flush TX buffer
